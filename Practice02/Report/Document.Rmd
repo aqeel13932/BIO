@@ -91,7 +91,7 @@ summary(data)
 You can understand data better if you visualise it. Let's plot it using `pheatmap` function (make sure you have loaded an appropriate library first)
 
 ```{r, echo=TRUE, eval = FALSE}
-pheatmap(data[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
+pheatmap(data_log[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
 ```
 
 As you can see, it takes a lot of time for your computer to plot a heatmap this big (9118 by 90). Currently the most time consuming part is to display this huge matrix on your screen in RStudio, but if you save this image directly to the file, it won't take a lot of time.
@@ -112,6 +112,7 @@ data_log <- log2(data)
 Plot logarithmised data using `pheatmap` function.
 
 ```{r, eval = FALSE}
+
 pheatmap(data_log[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE,
          filename = 'Images/phmap2.png', fontsize = 5)
 ```
@@ -123,12 +124,20 @@ Trust me, this the last time we have to plot heatmaps like these.
 > Looking at `phmap1.png` and `phmap2.png` that now should be stored in your `Images/` folder, attempt to answer the following questions:
 >
 >* Name main differences (at least 3) that you see between graphs
-1. The scale.
-2. Values much more differenciable.
-3. Values distributed.
-4. Since log minimize the value we can view more data.
+
+1. The scale range is much different now (one of the reasons for using log plot is when we have large range of quantities [Source](https://en.wikipedia.org/wiki/Logarithmic_scale))
+2. Since the range now is smaller, the color will change better according to the value which allow us to have more information about our data (For example we can see how our data is distributed over the whole range).
+3. With the new heatmap I can observe things I couldn't see before. For example I can find the low values much more easier.
 
 >* Do you see vertical and horizontal lines that are now visible on the second image? Can you explain what are those and why they have become visible after `log2()`?
+
+Because before log2 the values where distributed between 0-> ~16000. this huge difference won't give a nice draw because it won't be sensitive to small or even large changes (by large I mean changes by hundreds.). For example if we took X30 (one of the noticable columns) we can notice that this column has higher values than X29 and X31.
+
+```{r}
+mean(data$X30-data$X29)
+mean(data_log$X30-data_log$X29)
+```
+From the previous code we can see that log is more sensitive to changes than
 
 ### Unsupervised learning. Cluster analysis.
 
