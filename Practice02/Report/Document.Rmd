@@ -1,7 +1,7 @@
 ---
-title: "Homework 1"
-author: "Dmytro Fishman"
-date: "14 September 2016"
+title: "BioHomework 1"
+author: "Aqeel Labash"
+date: "22 September 2016"
 output: 
   pdf_document: 
     toc: yes
@@ -55,11 +55,11 @@ head(data)
 
 ```{r, echo=TRUE, eval = FALSE}
 str(data)
-"data.frame"
+"data.frame" First line of the command str(data)
 ```
 >* How many rows and how many columns are in this object?
 
-```{r, echo=TRUE,eval=FALSE}
+```{r, echo=TRUE,eval=TRUE}
 dim(data)
 #(9118,90) (rows,columns).
 ```
@@ -76,6 +76,9 @@ str(data)
 data$X13[1:2]
 #First : 129.0138
 #Second: 212.7461
+str(data$X13)
+# First : 129
+# Second: 213
 ```
 >* What is the mean reactivity value for a sample `X75`?
 
@@ -91,7 +94,7 @@ summary(data)
 You can understand data better if you visualise it. Let's plot it using `pheatmap` function (make sure you have loaded an appropriate library first)
 
 ```{r, echo=TRUE, eval = FALSE}
-pheatmap(data_log[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
+pheatmap(data[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
 ```
 
 As you can see, it takes a lot of time for your computer to plot a heatmap this big (9118 by 90). Currently the most time consuming part is to display this huge matrix on your screen in RStudio, but if you save this image directly to the file, it won't take a lot of time.
@@ -112,7 +115,7 @@ data_log <- log2(data)
 Plot logarithmised data using `pheatmap` function.
 
 ```{r, eval = FALSE}
-
+pheatmap(data_log, cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
 pheatmap(data_log[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE,
          filename = 'Images/phmap2.png', fontsize = 5)
 ```
@@ -126,18 +129,15 @@ Trust me, this the last time we have to plot heatmaps like these.
 >* Name main differences (at least 3) that you see between graphs
 
 1. The scale range is much different now (one of the reasons for using log plot is when we have large range of quantities [Source](https://en.wikipedia.org/wiki/Logarithmic_scale))
-2. Since the range now is smaller, the color will change better according to the value which allow us to have more information about our data (For example we can see how our data is distributed over the whole range).
-3. With the new heatmap I can observe things I couldn't see before. For example I can find the low values much more easier.
+2. The values more distinguishable.
+3. The values are closer to each other which give better coloring.
+4. With the new heatmap we can observe things we couldn't see before. Due to one of logarithm properties (small step on small x get large difference on y)(example : log2(0.1)= -3.32 , log2(0.2)=-2.32, log2(1000000)= 16.6, log2(500000)= 18.93)
 
 >* Do you see vertical and horizontal lines that are now visible on the second image? Can you explain what are those and why they have become visible after `log2()`?
 
-Because before log2 the values where distributed between 0-> ~16000. this huge difference won't give a nice draw because it won't be sensitive to small or even large changes (by large I mean changes by hundreds.). For example if we took X30 (one of the noticable columns) we can notice that this column has higher values than X29 and X31.
+Those for people (in case of columns) who have (high/low) protein reactivities compared to there neighbours mainly. while the rows represent a (high/low) reactivities for specific protien compared to there neighbours mainly.
+They are pretty clear now because with log as I mentioned in the previous request we get closer values when protein reactivities get higher and we get more distributed values when the protein reactivities get smaller. I believe that's the reason for it.
 
-```{r}
-mean(data$X30-data$X29)
-mean(data_log$X30-data_log$X29)
-```
-From the previous code we can see that log is more sensitive to changes than
 
 ### Unsupervised learning. Cluster analysis.
 
@@ -155,10 +155,14 @@ wss <- sapply(1:10, function(x) sum(kmeans(data_log, centers=x)$withinss))
 
 # Visualise the sum of the squared distances from cluster 
 # members to centers for all ten possible number of clusters 
+png('Images/elbow.png')
 plot(1:10, wss, type="b", xlab="Number of Clusters",
      ylab="Within groups sum of squares", main = 'Elbow plot') 
 # you can use Zoom button to take a closer look at generated graph
+dev.off()
 ```
+
+![Elbow Plot](../Images/elbow.png)
 
 > #### Exercise 3 (1 point) 
 >
@@ -166,7 +170,7 @@ plot(1:10, wss, type="b", xlab="Number of Clusters",
 yourselves that an appropriate number of clusters is the number at which the reduction in SSE decreases dramatically. This produces a bending point in the Elbow plot.
 
 ```{r, eval = FALSE}
-k <- 0 # Select more meaningful k by looking at Elbow plot 
+k <- 4 # Select more meaningful k by looking at Elbow plot 
 
 # Enable reproducibility
 set.seed(1234)
@@ -176,12 +180,13 @@ km <- Kmeans(x = data_log, centers = k, iter.max = 100, method = "correlation")
 
 # Explore the structure of clustering
 head(km)
-
+png(filename = 'Images/protienre.png',width = 1200,height = 700)
 pheatmap(data.frame(km$centers), labels_row = km$size, 
          cluster_rows=F, cluster_cols=T,
          clustering_distance_rows = "correlation",
          border_color = "grey60",
          main="Protein reactivity")
+dev.off()
 ```
 
 > #### Exercise 4 (2 points) 
@@ -190,24 +195,41 @@ pheatmap(data.frame(km$centers), labels_row = km$size,
 For example, select a cluster (row), which seems to have at least two distinguished groups of samples, and run the following code: 
 
 ```{r, eval = FALSE}
-cluster_id <- 0 # choose a cluster you would like to analyse
+cluster_id <- 1 # choose a cluster you would like to analyse
 
 # print out protein names that belong to this cluster
 names(km$cluster[which(km$cluster == cluster_id)])
 
 # use gProfiler (here is a web interface: http://biit.cs.ut.ee/gprofiler/)
+
 # to identify a pool of most probable common biological functions for 
 # chosen group of proteins
 gp_results <- gprofiler(names(km$cluster[which(km$cluster == cluster_id)]))[,c(3,12)]
-
+head(gp_results)
 # print first 6 most significant (p.value is the lowest) terms
 # use function `arrange` from dplyr library to arrange gp_results by
 # p.value. Use function `head` to print only first 6 rows.  
 library(dplyr)
-head(arrange(..., ...)) # In console use ?function_name for help
-```
+View(head(arrange(gp_results,p.value)))
 
+#  p.value   term.name 
+#1 0.00220   cytoplasm
+#2 0.00229   protein binding
+#3 0.00341   vitamin metabolic process
+#4 0.00597   Leishmaniasis
+#5 0.00788   HUMAN IMMUNODEFICIENCY VIRUS TYPE 1, SUSCEPTIBILITY TO;;HIV-1, 
+#SUSCEPTIBILITYTOHUMAN IMMUNODEFICIENCY VIRUS TYPE 1, RESISTANCE TO, INCLUDED
+#;;HIV-1, RESISTANCE TO,INCLUDED;;ACQUIRED IMMUNODEFICIENCY SYNDROME, 
+#PROGRESSION TO, INCLUDED;;AIDS, PROGRESSION TO, INCLUDED
+#6 0.00889   regulation of smooth muscle cell proliferation
+```
 > In order to claim 2 points for this exercise, report heatmap of clusters, tell which of the clusters you decided to investigate and print out first six most significant terms associated with this cluster.
+
+I choosed to go with K=4 and that's because I calculated the differencess between wss[i]-w[i+1] and found that at i=4 (the cut point) the difference got big differences from the previous differenceses. (it's also shown in the elbow plot)
+
+![Protien reactivity](../Images/protienre.png)
+
+^_^
 
 ### Feature selection
 
@@ -237,7 +259,7 @@ The idea of differential expression analysis is to select proteins that are most
 In order to perform this analysis, we need to know, which subjects in our study are sick and which are healthy. For that we shall identify and separately store indexes of sick and healthy subjects.
 
 ```{r, eval = FALSE}
-library(dplyr)
+  library(dplyr)
 
 # Store separately indexes of patient and healthy samples
 patients <- which(colnames(data_log) %in% filter(trainingLabels, label == 1)$array)
@@ -251,7 +273,7 @@ During the lecture we saw that in order to perform differential expression analy
 ```{r, eval=FALSE}
 # Compute p.values for all 9118 protein in our data
 # function apply() is very similar to the for loop, but works much faster in R
-pvalues <- apply(data_log, 1, function(x) t.test(x[...], x[...])$p.value)
+pvalues <- apply(data_log, 1, function(x) t.test(x[patients], x[healthy])$p.value)
 
 # Take a look at first 6 p.values
 head(pvalues)
@@ -259,12 +281,19 @@ head(pvalues)
 
 We have produced a vector of probabilities. These probabilities could be interpreted as - 'what is the chance that reactivities of this protein (i.e values of this feature) are `not` significantly different between two conditions (sick and healthy). Here is a special emphasis on `not` significantly different. This means - smaller this probability, more likely it is that this protein `is` different enough between two conditions, and more likely we would be willing to leave this protein in our data set for the modeling part.
 
-Usually scientists are interested in significant p.values (<0.05), but in our case there are way too many significant proteins (can you identify how many?), so we will use only N the most significant proteins. 
+Usually scientists are interested in significant p.values (<0.05), but in our case there are way too many significant proteins (can you identify how many?)
+
+```{r,eval=FALSE}
+sum(pvalues<0.05)
+# we have 1697 protiens under 0.05
+```
+
+, so we will use only N the most significant proteins. 
 
 In order to obtain N top most significant proteins we would have to first sort vector `pvalues` in ascending order with a help of function `sort()`. Then select first N proteins (e.g. 100) and then using function `names()` obtain their names. Here is a code:
 
 ```{r, eval = FALSE}
-N <- 0 # choose number of proteins you want to select (e.g. 100)
+N <- 100 # choose number of proteins you want to select (e.g. 100)
 
 # Sort p_values in ascending order 
 sort_pvalues <- sort(pvalues, decreasing = FALSE)
@@ -294,6 +323,18 @@ Use `dim()` to make sure that your data is now 100 times 90
 >
 > Produce a visualisation of `data_shrt` data set using `pheatmap()` (remeber I promised that we will never draw heatmaps again? I lied!). Include this image into the report. Make sure to set `cluster_rows` and `cluster_cols` parameters to `TRUE`. Look at this image, can you see two distinct groups of samples? Do they somehow correlate with patients and healthy subjects? Provide your interpretation of this heatmap.
 
+```{r,eval=FALSE}
+#png(filename = 'Images/phmapshort.png',width = 1200,height = 600)
+pheatmap(data_shrt, cluster_rows = TRUE, cluster_cols = TRUE, show_rownames = TRUE,main = 'Short Data (100 First Protiens)'
+        ,filename = 'Images/phmapshort.png' , fontsize = 3)
+#dev.off()
+
+```
+
+![Heat map for important Protiens](../Images/phmapshort.png)
+
+Yes I can see two groups, and after checking the ids I found that every person in the right group (of the heat map) that exist (some doesn't) in the training labels data set is patient. Also I checked many from the group on the left group on the heat map and all those who exist in the training labels (during my random pick) were healthy.
+
 > #### Bonus exercise, optional (2 points) 
 >
 > Function `pheatmap` has a parameter `annotation`. This parameter takes as input a data.frame with classes of columns (e.g. patients and healthy subjects) of the given matrix (in our case data_shrt). Try to augment the heatmap produced in the previous step, by adding this annotation. How would you treat samples for which we don't know classes (not included into trainingLabels.csv)? Report an augmented heatmap with your interpretation of the image to claim 2 bonus points.  
@@ -301,15 +342,26 @@ Use `dim()` to make sure that your data is now 100 times 90
 ```{r, eval=FALSE}
 # Small hint for you to start with
 annotation <- rep(0, ncol(data_shrt))
+annotation[patients]='Patient'
+annotation[healthy]='Healthy'
+annotation[annotation==0]='Unknown'
+finalframe = data.frame(annotation)
+rownames(finalframe) = colnames(data_shrt)
+colnames(finalframe) = 'Health Condition'
 
 pheatmap(data_shrt, 
-         annotation = annotation,
-         cluster_rows = TRUE,
+         annotation_col = finalframe,cluster_rows = TRUE,
+         show_rownames = FALSE,
          cluster_cols = TRUE,
-         clustering_distance_rows = "correlation",
-         border_color = "grey60",
-         main="Protein reactivity")
+         show_colnames = TRUE,
+         clustering_distance_rows = "correlation", 
+         border_color = "grey60", main="Protein reactivity Categorized",
+         filename = 'Images/CategoriezedProtien.png',fontsize = 5)
 ```
+
+![Categorized Protien Reactivity](../Images/CategoriezedProtien.png)
+
+In the previous heatmap I used the arrays we created earlier (patients , healthy) to change the annotation array by those values, after that I labeled the unchanged values to new category "Unknown" and then used this information to change annotation_col.
 
 Ok, in order to use `data_shrt` (`shrt` stands for short) for machine learning we need to transpose it - turn the matrix upside down, to make sure that proteins are now in columns and people are rows, for that:
 
@@ -323,11 +375,69 @@ head(data_shrt)
 > #### Bonus exercise, optional (2 points)
 >
 > There are other feature extraction methods up there, on the lecture we have discussed three more: correlated predictors, near zero variance and PCA. Go to the caret web page about pre-processing (http://topepo.github.io/caret/pre-processing.html) and read about function `findCorrelation()`. This function could be applied on our data to find proteins which are highly correlated (e.g. >0.95) and thus, not very usefull for the analysis. 
-> In order to claim 2 bonus points: 
-* use this function to find highly correlated proteins, 
-* prove that they are in fact highly correlated (show correlation coefficients or draw a scatter plot) 
-* remove them from the data set
-* show that data set dimensions have changed comparing to the original size
+> In order to claim 2 bonus points:  
+
+>* use this function to find highly correlated proteins, 
+>* prove that they are in fact highly correlated (show correlation coefficients or draw a scatter plot) 
+>* remove them from the data set
+>* show that data set dimensions have changed comparing to the original size
+
+```{r,eval=FALSE}
+library(caret)
+library(corrplot)
+dim(data_log)
+# I checked for Non zero vector and got None.
+data_log_t <- t(data_log)
+data_cor<- cor(data_log_t)
+dim(data_cor)
+higlyCorrelated<- findCorrelation(data_cor,cutoff= .95)
+
+#This list doesn't that they all are correlated with each other but mean that some of them are correlated with another columns
+# if we want to gaurantee the result we need to set (exact=True) wich took very long time.
+corrdata = data.frame()
+
+
+for (i in 1:202){
+  domain=0
+iimp =0
+vimp=0
+
+  for (v in 1:202){
+  val = cor(t(data_log)[,c(higlyCorrelated[i],higlyCorrelated[v])])[1,2]
+  if (i!=v && val>domain)
+  {
+    iimp = i
+    domain = val
+    vimp = v
+    
+  }
+  }
+  corrdata = rbind(corrdata,c(iimp,vimp,domain))
+}
+
+colnames(corrdata) = c('p1','p2','corr')
+sum(corrdata$corr<0.95)
+dim(corrdata)
+
+png('Images/Correlation.png')
+plot(corrdata$corr,xlab = 'Index',ylab = 'Correlation Value')
+dev.off()
+
+# To remove the high correlated data
+altereddata <- data_log[-higlyCorrelated,]
+
+#The old dimension vs new dimension
+dim(data_log)
+# [1] 9118   90
+dim(altereddata)
+# [1] 8916   90
+```
+![Corrlation plot](../Images/Correlation.png)
+```{r,eval=FALSE}
+```
+In the Figure 5 we can see the correlation value which is near 1 in most cases. 
+The problem is there is around 61 value under 0.95 so I don't know where is the problem in the previous function although I made sure that those values the most correlated between 202 as shown in the previous code.
+
 
 ### Machine Learning 
 
@@ -339,6 +449,7 @@ inTraining <- which(rownames(data_shrt) %in% trainingLabels$array)
 
 training <- data.frame(data_shrt[ inTraining,])
 testing  <- data.frame(data_shrt[-inTraining,])
+
 ```
 
 #### Principle Component Analysis 
@@ -347,10 +458,14 @@ It would help us to visualise and uncover any hidden structure in our data:
 
 ```{r, eval=FALSE}
 training_pcomp <- prcomp(training, scale. = TRUE, center = TRUE)
+plot(training_pcomp$x)
 # Why do we scale and center data before PCA?
-
+# That's because  PCA try to catch the variance.
 # How much of the variance is explained by first two PCs?
 summary(training_pcomp)
+sum(summary(training_pcomp)$importance[2,1:2])
+#[1] 0.82387
+# 82% of the variance is explained by first two PCs.
 
 # Extract the principle component matrix
 pcmatrix <- data.frame(training_pcomp$x[,1:2])
@@ -367,6 +482,7 @@ cbPalette <- c( "darkgreen",
                 "#ca0020")
 
 # Plotting
+png('Images/pcaout.png')
 ggplot(pcmatrix, aes(x = PC1, y = PC2, fill = label)) + 
   geom_point(size = 5, pch = 21, colour = 'white') +
   theme_bw(base_size = 18) + 
@@ -380,10 +496,19 @@ ggplot(pcmatrix, aes(x = PC1, y = PC2, fill = label)) +
   ) + 
   geom_density2d(aes(colour = label)) + 
   scale_colour_manual(values=cbPalette, name="") 
+dev.off()
 ```
+(PCA plot is Figure 6.)
+
+![PCA Plot](../Images/pcaout.png)
+
 > #### Exercise 6 (1 points)
 > 
 >  Explain possible reasons for two clusters of patients that you see on PCA.
+
+- there is a possiblity that this is relate to age protien.
+- Another thing to thin about is lets assume we have to protiens which both are highly correlated with the label but they are not correlated between them. this situation might lead to this status. For example : age, white cells ( don't know how much they are correlated in real life but that's what came on top of my mind).
+
 
 #### k-fold Cross Validation 
 
@@ -408,7 +533,7 @@ set.seed(111)
 # To turn 0s and 1s into a vector of char values `X1`s and `X2`s
 # These are needed to ensure that we are up going to do a classification
 training$label <- as.factor(make.names(trainingLabels$label))
-
+training$label
 # as for metric we are going to use ROC (refer to lecture slides)
 modelFit <- train(label ~ ., data = training,
                  method = "svmRadial",
@@ -416,7 +541,7 @@ modelFit <- train(label ~ ., data = training,
                  metric = "ROC",
                  verbose = TRUE # These is to print out training progress
                )
-modelFit # Check that model has been trained correctly
+summary(modelFit) # Check that model has been trained correctly
 ```
 
 What happens in the snippet above is that caret trains an SVM model on our data using 7-fold CV, repeats it 2 times and averages results. Also it tries to find the most optimal (maximising AUC score) parameters for the given model. 
@@ -447,10 +572,14 @@ predictions <- predict(modelFit, newdata = training, type = 'prob')
 > Receiver operating characteristic (ROC), is a fundamental tool for model evaluation in Machine Learning. The area under the ROC curve is a measure of how well model can distinguish between diseased and normal samples. Can you plot one using previous line of code + function from pROC library? To claim this point, you should visualise ROC for any of the models you trained and also provide comprehensive interpretation.
 
 ```{r, eval=FALSE}
-predictions <- predict(modelFit, newdata = training, type = 'prob')
+predictions <- predict(modelFit, newdata = training)
 library(pROC)
 # Here should go function from pROC library that together with function plot() would visualise ROC for the given model
+png('Images/ROC.png')
+roc(training$label,as.ordered(predictions),plot = TRUE)
+dev.off()
 ```
+![ROC Plot](../Images/ROC.png)
 
 > #### Exercise 8: participate in a competition (1 point)
 >
