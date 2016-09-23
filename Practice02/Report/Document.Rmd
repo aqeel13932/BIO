@@ -641,3 +641,6 @@ I tried 3 models :
 1. xgbLinear
 2. Random Forest
 3. Model Averaged Neural Network
+
+
+### Note all files (.pdf,.R,.Rdata ,.png, .rmd etc...) exist on [github](https://github.com/aqeel13932/BIO/tree/master/Practice02)
