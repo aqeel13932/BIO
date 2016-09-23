@@ -1,7 +1,13 @@
-BBBAABBBABBABABBBAAAAABBBBBABBABABAABBABBBABAAABAA
+xzyyzzyzyy
 --------
-A	B
+x   y   z
 --------
-	A	B
-A	0.663	0.337	
-B	0.674	0.326
+A   B
+--------
+    A   B
+A   0.303   0.697 
+B   0.831   0.169 
+--------
+    x   y   z
+A   0.533   0.065   0.402 
+B   0.342   0.334   0.324
