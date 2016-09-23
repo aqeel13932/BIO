@@ -1,7 +1,7 @@
 ---
 title: "BioHomework 1"
 author: "Aqeel Labash"
-date: "22 September 2016"
+date: "23 September 2016"
 output: 
   pdf_document: 
     toc: yes
@@ -34,7 +34,7 @@ Columns of this data set represent people that participated in the study and row
 
 Access the data set we prepared for you:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 data <- read.table(file = 'Data/data.csv', sep = ',')
 ```
 
@@ -61,7 +61,6 @@ str(data)
 
 ```{r, echo=TRUE,eval=TRUE}
 dim(data)
-#(9118,90) (rows,columns).
 ```
 
 >* What type of data is stored in this object? (character, numeric, integer, etc.)
@@ -72,13 +71,10 @@ str(data)
 ```
 >* What are the first two values in the sample `X13`?
 
-```{r, echo=TRUE, eval = FALSE}
+```{r, echo=TRUE, eval = TRUE}
 data$X13[1:2]
-#First : 129.0138
-#Second: 212.7461
 str(data$X13)
-# First : 129
-# Second: 213
+
 ```
 >* What is the mean reactivity value for a sample `X75`?
 
@@ -93,7 +89,7 @@ summary(data)
 
 You can understand data better if you visualise it. Let's plot it using `pheatmap` function (make sure you have loaded an appropriate library first)
 
-```{r, echo=TRUE, eval = FALSE}
+```{r, echo=TRUE, eval = TRUE}
 pheatmap(data[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
 ```
 
@@ -108,14 +104,16 @@ Ok, it still took some time :)
 
 Use `log2()` function to log scale your data and save it into a new variable `data_log`.
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 data_log <- log2(data)
 ```
 
 Plot logarithmised data using `pheatmap` function.
 
-```{r, eval = FALSE}
-pheatmap(data_log, cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE)
+```{r, eval = TRUE}
+pheatmap(data_log, cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE,fontsize = 5)
+```
+```{r,eval=FALSE}
 pheatmap(data_log[1:1000,], cluster_rows = FALSE, cluster_cols = FALSE, show_rownames = FALSE,
          filename = 'Images/phmap2.png', fontsize = 5)
 ```
@@ -226,6 +224,8 @@ View(head(arrange(gp_results,p.value)))
 > In order to claim 2 points for this exercise, report heatmap of clusters, tell which of the clusters you decided to investigate and print out first six most significant terms associated with this cluster.
 
 I choosed to go with K=4 and that's because I calculated the differencess between wss[i]-w[i+1] and found that at i=4 (the cut point) the difference got big differences from the previous differenceses. (it's also shown in the elbow plot)
+
+Note: the plot is Figure (2) (some how the order of figure is not secured).
 
 ![Protien reactivity](../Images/protienre.png)
 
@@ -589,11 +589,11 @@ For this, substitute `?` in the snippet below with any two model names from http
 ```{r, eval=FALSE}
 set.seed(825)
 modelFit <- train(label ~ ., data = training,
-                 method = "?",
+                 method = "avNNet",
                  trControl = fitControl,
                  metric = "ROC"
                )
-modelFit
+modelFit$method
 ```
 
 ```{r, eval=FALSE}
@@ -623,7 +623,7 @@ generateSubmission <- function(modelFit, name) {
 ```{r, eval = FALSE}
 # Please, write your name with capital letters and in one word
 # like in example:
-name <- 'DIMAF'
+name <- 'AQEEL'
 
 # Submission file will now be generated in /Models/ 
 # directory of your project (don't forget to run previous snippet)
@@ -635,3 +635,9 @@ If read until this place in the document, you can claim an additional bonus poin
 > #### Bonus exercise: be in the top 3 of the competition (3 points)
 >
 > Make sure to submit the right model to get into the top of the ranking that we will generate using your predictions, first three places will get a bonus.
+
+I tried 3 models : 
+
+1. xgbLinear
+2. Random Forest
+3. Model Averaged Neural Network
