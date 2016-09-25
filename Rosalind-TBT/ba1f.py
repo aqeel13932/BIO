@@ -1,43 +1,25 @@
-#with open('data') as f:
-#    data = f.readline().strip()
-#print data
+import operator
+with open('data') as f:
+    data = f.readline().strip()
 
+c=0
+g=0
+ls={}
+for i in range(len(data)):
+    if data[i]=='G':
+        g+=1
+    if data[i]=='C':
+        c+=1
+    ls[i+1]=g-c
 
-'''
-Minimum Skew Problem: Find a position in a genome minimizing the skew.
-     Input: A DNA string Genome.
-     Output: All integer(s) i minimizing Skewi (Genome) among all values of i (from 0 to |Genome|).
-CODE CHALLENGE: Solve the Minimum Skew Problem.
-Sample Input:
-     TAAAGACTGCCGAGAGGCCAACACGAGTGCTAGAACGAGGGGCGTAAACGCGGGTCCGAT
-Sample Output:
-     11 24
-'''
-
-sequence = 'ATGGGCATCGGCCATACGCC'
-
-def skew(sequence):
-        print 'test'
-        c = 0
-        g = 0
-        min_skew = 0
-        skew_list = []
-        index = 0
-        for i in sequence:
-            index += 1
-            if i == 'C':
-                c += 1
-            if i == 'G':
-                g += 1
-            skew = g-c
-            if skew < min_skew:
-                skew_list = [index]
-                min_skew = skew
-            if skew == min_skew and index not in skew_list:
-                skew_list.append(index)
-            print(skew_list)
-        
-        #with open('data.txt', 'r') as in_file:
-        #sequence = in_file.readline()	
-        #skew(sequence)
-skew(sequence)
+sorted_words = sorted(ls.items(), key=operator.itemgetter(1),reverse=False)
+basic =0
+for i in range(len(sorted_words)):
+    if i==0:
+        print sorted_words[i][0],
+        basic=sorted_words[i][0]
+    elif sorted_words[i][1]==sorted_words[i-1][1]:
+        print sorted_words[i][0],
+    else:
+        break
+print ''
