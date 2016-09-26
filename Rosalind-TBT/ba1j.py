@@ -4,17 +4,19 @@ from time import time
 with open('data') as f:
     data = f.readline().strip()
     k,d = map(int,f.readline().strip().split())
+
 match= {'A':'T','T':'A','G':'C','C':'G'}
+
 def revdna(dna):
-    return ''.join(map(lambda x:match[x],list(dna)))
-datahash =revdna(data)
+    ls = map(lambda x:match[x],list(dna))
+    ls.reverse()
+    return ''.join(ls)
 
 words={}
-x = itertools.product(['A','T','G','C'],repeat=k)
+x = itertools.product(['A','C','G','T'],repeat=k)
 for i in x:
     words[''.join(i)]=0
 def space(data1,data2):
-    
     total = abs(len(data1)-len(data2))
     counter = min(len(data1),len(data2))
     for i in range (counter):
@@ -22,12 +24,11 @@ def space(data1,data2):
     return total
 
 def registerAll(word):
-    for i in range(len(data)):
+    for i in range(len(data)-k+1):
         if space(data[i:i+k],word)<=d:
             words[word]+=1
         if space(data[i:i+k],revdna(word))<=d:
             words[word]+=1
-
 i= 0
 tt = len(words.keys())
 for word in words.keys():
@@ -37,7 +38,6 @@ for word in words.keys():
         print i,tt
 
 sorted_words = sorted(words.items(), key=operator.itemgetter(1),reverse=True)
-print sorted_words
 outls=[]
 for i in range(len(sorted_words)):
     if i==0:
