@@ -5,14 +5,13 @@ from sys import maxint
 import numpy as np
 with open('data') as f:
     k,t = map(int,f.readline().strip().split())
-    data = map(lambda x: x.strip(),f.readlines())
+    dataa = map(lambda x: x.strip(),f.readlines())
 
+#Letter To Number
+LTN = {'A':0,'C':1,'G':2,'T':3}
 def MOST_FREQUENT_KMER(k,arr,data):
-    #Letter To Number
-    LTN = {'A':0,'C':1,'G':2,'T':3}
-
-
     def K_MER_PROP(Pattern):
+
         total=1
         for i in range(len(Pattern)):
             total*=arr[LTN[Pattern[i]]][i]
@@ -29,19 +28,35 @@ def MOST_FREQUENT_KMER(k,arr,data):
 
     return FV
 
+def GET_COUNT(motifs):
+    count = np.zeros((4,len(motifs[0])))
+    for i in range(len(motifs)):
+        for j in range(len(motifs[0])):
+            count[LTN[motifs[i][j]]][j]+=1
+    return count
 
+def GET_SCORE(motifs):
+    count = GET_COUNT(motifs)
+    total = np.sum(count)-np.sum(count[[np.argmax(count,axis=0)],[range(0,len(motifs[0]))]])
+    return total
 
-#Letter To Number
-LTN = {'A':0,'C':1,'G':2,'T':3}
-
-def GenerateProfile(lst):
-    
-    pr = np.zeros((4,len(lst[0])))
-    for i in range(len(lst)):
-        for j in range(len(lst[0])):
-            pr[LTN[lst[0][j]]][j]+=1
+def GET_PROB(lst): 
+    count = GET_COUNT(lst)
+    pr =count/len(lst)
     return pr
 
+bs = maxint
+bm = []
+for i in range(len(dataa[0])-k+1):
+    motifs = []
+    motifs.append(dataa[0][i:i+k])
+    for j in range(1,t):
+        cprob = GET_PROB(motifs)
+        motifs.append(MOST_FREQUENT_KMER(k,cprob,dataa[j]))
+    cs = GET_SCORE(motifs)
+    if cs<bs:
+        bs = cs
+        bm = motifs
 
+print '\n'.join(bm)
 
-exit()
