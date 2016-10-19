@@ -10,7 +10,7 @@ if __name__ == "__main__":
         k = int(f.readline().strip())
         dna = f.readline().strip()
     ls = Composition(dna,k)
-    with open('log.out','w') as f:
+    with open('log.txt','w') as f:
         f.write('\n'.join(ls))
 
 

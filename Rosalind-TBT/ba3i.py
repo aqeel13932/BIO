@@ -1,12 +1,13 @@
-import networkx as nx
+import itertools
 
 if __name__ == "__main__":
     with open('data') as f:
-        G = nx.DiGraph()
-        for val in f.readlines():
-            val = val.strip().split()
-            for j in val[2].split(','):
-                G.add_edge(val[0],j)
+        k = int(f.readline().strip())
+    lst = itertools.product(['0','1'],repeat=k)
+
+    for i in lst:
+        print i
+    '''
     result = list(nx.eulerian_circuit(G))
     output = str(result[0][0])
     for val in result:
@@ -14,4 +15,4 @@ if __name__ == "__main__":
     print output
     with open('log.txt','w') as f:
         f.write(output)
-
+    '''

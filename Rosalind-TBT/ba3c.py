@@ -15,7 +15,7 @@ if __name__ == "__main__":
     ls = Overlap(dna_lst)
     ls.sort()
     print '\n'.join(ls)
-    with open('log.out','w') as f:
+    with open('log.txt','w') as f:
         f.write('\n'.join(ls))
 
 

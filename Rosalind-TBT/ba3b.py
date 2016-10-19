@@ -10,7 +10,7 @@ if __name__ == "__main__":
         dna_lst = map(lambda x: x.strip(),f.readlines())
     ls = ReconstructString(dna_lst)
     print ls
-    with open('log.out','w') as f:
+    with open('log.txt','w') as f:
         f.write(ls)
 
 
