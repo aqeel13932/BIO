@@ -1,0 +1,6 @@
+A,C,D
+
+Solution groups:
+(A,B),(C,D)
+(A,C),(B,D)
+(B,C),(C,D)
