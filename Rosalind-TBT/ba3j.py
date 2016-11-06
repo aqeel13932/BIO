@@ -3,9 +3,15 @@ def OrderList(lst):
     ditmp={}
     for i in lst:
         dilst[i[:-1]]=(i,False)
-        ditmp[i[1:]]=False
+        ditmp[i[1:]]=i
     print ditmp
-
+    for i in lst:
+        print i
+        if i[:-1] in ditmp:
+            print i, ditmp[i[:-1]]
+        else:
+            print 'not'
+    exit()
     #Find Start
     for i in lst:
         if i[:-1] not in ditmp:
