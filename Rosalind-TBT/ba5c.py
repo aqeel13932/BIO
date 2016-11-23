@@ -52,6 +52,7 @@ if __name__ == "__main__":
         col = list(f.readline().strip())
         row = list(f.readline().strip())
     res = BUILD_COST_MAP(col,row)
+    print res
     res = LONGEST_PATH(res,col,row)
     with open('log.txt','w') as f:
         f.write('{} '.format(res))
