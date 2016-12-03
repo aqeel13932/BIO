@@ -30,13 +30,14 @@ def TRIECONSTRUCTION(Patterns):
                     current+='->{}:{}\n{}'.format(str(rank),pat[i],str(rank))
                 else:
                     current+='->{}:{}'.format(str(rank),pat[i])
+        graph.add_edge(startnode,(-1,'$'))
         linkslst.append(current)
-    return linkslst
+    return linkslst,graph
 
 if __name__ == "__main__":
     with open('data') as f:
         lst = [s.strip() for s in f.readlines()]
-    res = TRIECONSTRUCTION(lst)
+    res = TRIECONSTRUCTION(lst)[0]
     res= map(str,res)
     with open('log.txt','w') as f:
         f.write('{}'.format('\n'.join(res)))
