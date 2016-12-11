@@ -1,39 +1,42 @@
-probs={}
-with open('data') as f:
-    ls = f.readlines()
-    dna = ls[0].strip().upper()
-    probs['AA'],probs['AB']=map(float, ls[7].split()[1:])
-    probs['BA'],probs['BB'] = map(float,ls[8].split()[1:])
-    probs['AX'],probs['AY'],probs['AZ'] = map(float,ls[11].split()[1:])
-    probs['BX'],probs['BY'],probs['BZ'] = map(float,ls[12].split()[1:])
+import numpy as np
+def VETERBI(O,S,SO,TM,EM,IP):
+    T1=np.zeros((len(S),len(SO)))
+    T2=np.zeros(T1.shape,dtype=int)
+    T1[:,0] = IP*EM[:,O[SO[0]]]
+    for i in range(1,len(SO)):
+        for j in range(len(S)):
+            T1[j,i]= np.max(T1[:,i-1]*TM[:,j]*EM[j,O[SO[i]]])#,axis=0)
+            T2[j,i]= np.argmax(T1[:,i-1]*TM[:,j]*EM[j,O[SO[i]]])
+    ZT = np.argmax(T1,axis=0)
+    XT = [S[i] for i in ZT]
+    for i in range(T1.shape[1]-1,0,-1):
+        ZT[i-1]=T2[ZT[i],i]
+        XT[i-1]=S[ZT[i-1]]
+    return XT
 
-way={}
-way[0]= (probs['A'+dna[0]],None,probs['B'+dna[0]],None)
-for i in range(1,len(dna)):
-    #Current A , Previous A
-    AA = way[i-1][0]*probs['A'+dna[i]]*probs['AA']
-    #Current A , Previous B
-    AB = way[i-1][2]*probs['A'+dna[i]]*probs['AB']
-    #Current B, Previous A
-    BA = way[i-1][0]*probs['B'+dna[i]]*probs['BA']
-    #Current B, Previous B
-    BB = way[i-1][2]*probs['B'+dna[i]]*probs['BB']
-    Afather = 'A' if AA>AB else 'B'
-    Bfather = 'A' if BA>BB else 'B'
-    way[i]=(max(AA,AB),Afather,max(BA,BB),Bfather)
-output = []
-#(Act as there is another element at the end where it's father is the max(A,B) of the final elementin the list)
-Father ='A' if way[len(dna)-1][0]>way[len(dna)-1][2] else 'B'
-for i in range(len(dna)-1,-1,-1):
-    if Father =='A':
-        #Register my self since I am the father.
-        output.append('A')
-        Father= way[i][1]
-    elif Father =='B':
-        #Register my self since I am the father.
-        output.append('B')
-        Father=way[i][3]
-    else:
-        break
-output.reverse()
-print "".join(output)
+if __name__ == "__main__":
+    with open('data') as f:
+        string = f.readline().strip().upper()
+        f.readline()
+        alphabet = f.readline().strip().upper().split()
+        alphabet = {alphabet[i]:i for i in range(len(alphabet))}
+        f.readline()
+        states= f.readline().strip().upper().split()
+        #states= {states[i]:i for i in range(len(states))}
+        f.readline()
+        f.readline()
+        transitionMatrix=np.zeros((len(states),len(states)))
+        for i in range(len(states)):
+            transitionMatrix[i,:] = [float(i) for i in f.readline().strip().split()[1:]]
+        f.readline()
+        f.readline()
+        emissionmatrix=np.zeros((len(states),len(alphabet)))
+        for i in range(len(states)):
+            emissionmatrix[i,:] = [float(i) for i in f.readline().strip().split()[1:]]
+        #initialProb=[1/len(states)]*len(states)
+        
+        initialProb=[1]*len(states)
+    res = VETERBI(alphabet,states,string,transitionMatrix,emissionmatrix,initialProb)
+    with open('log.txt','w') as f:
+        f.write(''.join(res))
+
